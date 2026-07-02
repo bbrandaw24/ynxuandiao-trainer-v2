@@ -382,7 +382,13 @@ function markUnknown(){
 function swCat(c){st.cat=c;st.idx=0;document.querySelectorAll('#categoryTabs .nav-tab').forEach(function(t){t.classList.toggle('active',t.textContent===c)});loadQ()}
 
 function upStats(){
-  var t=0,c=0,w=0;Object.values(st.history).forEach(function(h){t+=(h&&h.total)||0;c+=(h&&h.correct)||0;w+=(h&&h.wrong)||0});
+  var t=0,c=0,w=0;Object.values(st.history).forEach(function(h){
+    if(!h) return;
+    var total = h.total !== undefined ? h.total : ((h.t)||0);
+    var correct = h.correct !== undefined ? h.correct : ((h.r)||0);
+    var wrong = h.wrong !== undefined ? h.wrong : ((h.w)||0);
+    t+=total;c+=correct;w+=wrong;
+  });
   document.getElementById('totalCount').textContent=t;document.getElementById('correctCount').textContent=c;
   document.getElementById('wrongCount').textContent=w;document.getElementById('accuracyPct').textContent=t?Math.round(c/t*100)+'%':'0%';
 }
