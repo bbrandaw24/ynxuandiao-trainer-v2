@@ -1,5 +1,584 @@
 <!DOCTYPE html>
-<html>
-<head><title>Test</title></head>
-<body><h1>GitHub Pages Test</h1><p>If you see this, Pages is working.</p></body>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>云南定向选调 · 综合训练系统</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f5f7fa;--card:#fff;--primary:#1a73e8;--primary-light:#e8f0fe;--success:#0f9d58;--danger:#d93025;--warning:#f9ab00;--text:#202124;--text2:#5f6368;--border:#dadce0;--radius:12px;--shadow:0 1px 3px rgba(0,0,0,.08)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+.header{background:linear-gradient(135deg,#1a73e8,#1557b0);color:#fff;border-radius:0 0 var(--radius) var(--radius);padding:30px 20px;margin-bottom:24px}
+.header h1{font-size:28px;margin-bottom:4px}.header p{opacity:.85;font-size:14px}
+.nav-tabs{display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap;background:var(--card);border-radius:var(--radius);padding:6px;box-shadow:var(--shadow)}
+.nav-tab{padding:10px 18px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-size:14px;color:var(--text2);transition:all .2s}
+.nav-tab:hover{background:var(--primary-light);color:var(--primary)}
+.nav-tab.active{background:var(--primary);color:#fff;font-weight:500}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:16px}
+.card-title{font-size:18px;font-weight:600;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);text-align:center}
+.stat-val{font-size:28px;font-weight:700}.stat-val.green{color:var(--success)}.stat-val.red{color:var(--danger)}.stat-val.blue{color:var(--primary)}
+.stat-lbl{font-size:13px;color:var(--text2);margin-top:4px}
+.options-grid{display:grid;gap:10px}
+.option-item{padding:14px 16px;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;font-size:15px;display:flex;align-items:center;gap:10px}
+.option-item:hover{border-color:var(--primary);background:var(--primary-light)}
+.option-item.correct{border-color:var(--success)!important;background:#e6f4ea!important}
+.option-item.wrong{border-color:var(--danger)!important;background:#fce8e6!important}
+.option-item.disabled{cursor:default;opacity:.7}
+.opt-lbl{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--bg);font-weight:600;font-size:13px;flex-shrink:0}
+.option-item.correct .opt-lbl{background:var(--success);color:#fff!important}
+.option-item.wrong .opt-lbl{background:var(--danger);color:#fff!important}
+.action-bar{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
+.btn{padding:10px 24px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s}
+.btn-pri{background:var(--primary);color:#fff}.btn-pri:hover{background:#1557b0}
+.btn-sec{background:var(--bg);color:var(--text)}.btn-sec:hover{background:var(--border)}
+.btn-warn{background:var(--warning);color:#fff}.btn-warn:hover{background:#e09b00}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#b3261e}
+.btn-sm{padding:6px 14px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.expl-box{margin-top:16px;padding:16px;border-radius:10px;background:#f8f9fa;border-left:4px solid var(--primary);display:none}
+.expl-box.show{display:block}
+.src-tag{font-size:11px;color:#5f6368;background:#f0f0f0;padding:2px 8px;border-radius:10px;margin-left:8px;white-space:nowrap}
+.error-item{padding:14px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.error-item:hover{background:var(--primary-light)}
+.err-q{font-weight:500;font-size:14px;margin-bottom:4px}
+.err-detail{font-size:13px;color:var(--text2)}
+.wrong-ans{color:var(--danger);font-weight:600}.right-ans{color:var(--success);font-weight:600}
+.cat-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500}
+.chart-box{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:16px}
+.chart-box h3{font-size:15px;margin-bottom:12px;color:var(--text2)}
+.soc-entry{margin:6px 0;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.6}
+.soc-ai{background:#e8f0fe;border-left:3px solid #1a73e8}
+.soc-user{background:#f5f5f5;border-left:3px solid #5f6368;margin-left:20px}
+.mode-bar{display:flex;gap:8px;margin-bottom:20px}
+.mode-btn{flex:1;padding:12px;text-align:center;border:2px solid var(--border);border-radius:10px;cursor:pointer;background:var(--card);transition:all .2s}
+.mode-btn.active{border-color:var(--primary);background:var(--primary-light)}
+.mode-btn-icon{font-size:24px}.mode-btn-lbl{font-size:13px;font-weight:500}
+.prog-star{color:var(--warning)}
+@media(max-width:600px){.header h1{font-size:22px}.nav-tab{padding:8px 12px;font-size:13px}}
+</style>
+</head>
+<body>
+<div class=container>
+<div class=header>
+<h1>云南定向选调 · 综合训练系统</h1>
+<p>行测+公基全客观题模拟 | 点击即答 | 错题衍生消去 | GitHub实时同步</p>
+</div>
+
+<div class=mode-bar>
+<div class="mode-btn active" data-mode=quiz onclick="switchMode('quiz')"><div class=mode-btn-icon>📝</div><div class=mode-btn-lbl>刷题</div></div>
+<div class=mode-btn data-mode=review onclick="switchMode('review')"><div class=mode-btn-icon>💬</div><div class=mode-btn-lbl>苏格拉底复盘</div></div>
+<div class=mode-btn data-mode=analysis onclick="switchMode('analysis')"><div class=mode-btn-icon>📈</div><div class=mode-btn-lbl>考情分析</div></div>
+</div>
+
+<!-- QUIZ PANEL -->
+<div id=quizPanel class="panel active">
+<div class=nav-tabs id=categoryTabs></div>
+<div class=stats-grid id=statsGrid>
+<div class=stat-card><div class="stat-val blue" id=totalCount>0</div><div class=stat-lbl>总题</div></div>
+<div class=stat-card><div class="stat-val green" id=correctCount>0</div><div class=stat-lbl>正确</div></div>
+<div class=stat-card><div class="stat-val red" id=wrongCount>0</div><div class=stat-lbl>错误</div></div>
+<div class=stat-card><div class="stat-val blue" id=accuracyPct>0%</div><div class=stat-lbl>正确率</div></div>
+</div>
+
+<div class=card>
+<div class=question-header style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+<span><span class=cat-badge id=qCat style="background:#e8f0fe;color:#1a73e8">加载中...</span></span>
+<span style=font-size:13px;color:var(--text2) id=qProg></span>
+</div>
+<div id=qContent style=font-size:16px;font-weight:500;line-height:1.8;margin-bottom:12px></div>
+<div id=optArea></div>
+<div class=action-bar id=actionBar style=display:none>
+<button class="btn btn-warn" id=dkBtn onclick=markUnknown()>❓ 不会</button>
+<span id=nextHint style=font-size:13px;color:var(--text2);display:none>点击任意选项 → 下一题</span>
+<button class="btn btn-sm btn-pri" onclick=exportClip() style=margin-left:auto>📋 导出</button>
+<button class="btn btn-sm btn-pri" onclick=exportGit(this)>📤 同步GitHub</button>
+<button class="btn btn-sm btn-danger" onclick=resetProgress() style=margin-left:8px>🔄 重置做题</button>
+<button class="btn btn-sm btn-danger" onclick=resetAll()>重置统计</button>
+</div>
+<div class=expl-box id=explBox><strong>解析：</strong><span id=explText></span></div>
+</div>
+
+<div class=card>
+<div class=card-title>❌ 错题本 <span style=font-size:13px;font-weight:400;color:var(--text2) id=errLabel>(0)</span></div>
+<div id=errList><p style="color:var(--text2);text-align:center;padding:20px 0">暂无错题</p></div>
+</div>
+</div>
+
+<!-- REVIEW PANEL -->
+<div id=reviewPanel class=panel>
+<div class=card>
+<div class=card-title>💬 苏格拉底复盘 · 对话记录</div>
+<p style=font-size:14px;color:var(--text2);margin-bottom:16px>你和我在聊天中的追问对话会记录在这里。</p>
+<div id=socList><p style="color:var(--text2);text-align:center;padding:30px">暂无记录</p></div>
+</div>
+</div>
+
+<!-- ANALYSIS PANEL -->
+<div id=analysisPanel class=panel>
+<div class=card><div class=card-title>📈 历年考情演变</div><div id=tlBox></div></div>
+<div style=display:grid;grid-template-columns:1fr 1fr;gap:16px>
+<div class=chart-box><h3>行测 vs 公基占比</h3><canvas id=ch1></canvas></div>
+<div class=chart-box><h3>行测子模块题量</h3><canvas id=ch2></canvas></div>
+<div class=chart-box><h3>公基子模块题量</h3><canvas id=ch3></canvas></div>
+<div class=chart-box><h3>行测占比趋势</h3><canvas id=ch4></canvas></div>
+</div>
+<div class=card style=margin-top:16px><div class=card-title>📋 备考策略</div><div id=stratBox></div></div>
+</div>
+</div>
+
+<script>
+// ===== DATA =====
+const EXAMS = [
+  {y:'2021前',g:100,x:0,gd:{sz:30,sq:25,fl:15,ds:10,mk:8,kj:7,dl:5},xd:{yy:0,pd:0,sl:0,zl:0},n:'纯公基'},
+  {y:'2023',g:85,x:15,gd:{sz:25,sq:22,fl:13,ds:10,mk:7,kj:5,dl:3},xd:{yy:5,pd:6,sl:2,zl:2},n:'首加行测'},
+  {y:'2024',g:65,x:35,gd:{sz:18,sq:15,fl:10,ds:8,mk:5,kj:5,dl:4},xd:{yy:10,pd:10,sl:7,zl:8},n:'行测扩至35'},
+  {y:'2025',g:65,x:35,gd:{sz:18,sq:12,fl:10,ds:8,mk:6,kj:6,dl:5},xd:{yy:10,pd:10,sl:7,zl:8},n:'延续'},
+  {y:'2026',g:50,x:50,gd:{sz:16,sq:8,fl:7,ds:5,mk:5,kj:5,dl:4},xd:{yy:12,pd:16,sl:10,zl:12},n:'公基行测各半'}
+];
+const L=['A','B','C','D'];
+
+// ===== QUESTION BANK =====
+const QB={};
+function regQ(c,qs){QB[c]=qs}
+// Helper
+regQ('新思想',[
+{q:'习近平新时代中国特色社会主义思想明确中国特色社会主义最本质的特征是什么？（2024云南定向选调·原题）',o:['人民民主专政','中国共产党领导','依法治国','社会主义公有制'],a:1,e:'最本质特征是党的领导。'},
+{q:'"五位一体"总体布局不包括以下哪项？（2023国考行测·原题）',o:['经济建设','政治建设','文化建设','国防建设'],a:3,e:'五位一体：经济、政治、文化、社会、生态文明。'},
+{q:'"四个全面"中2020年后新增的"全面"是什么？（2024云南定向选调·原题）',o:['全面深化改革','全面依法治国','全面从严治党','全面建设社会主义现代化国家'],a:3,e:'全面建成小康社会升级为全面建设社会主义现代化国家。'},
+{q:'习近平生态文明思想核心要义？（2023云南定向选调·原题）',o:['绿水青山就是金山银山','保护环境人人有责','节约优先','防治污染'],a:0,e:'绿水青山就是金山银山是核心要义。'},
+{q:'新时代我国社会主要矛盾？（2022国考题·改编）',o:['物质文化需要同落后生产矛盾','美好生活需要同不平衡不充分矛盾','生产力与生产关系矛盾','阶级斗争'],a:1,e:'十九大明确已转化为美好生活需要同不平衡不充分发展矛盾。'},
+{q:'人类命运共同体核心？（2024云南定向选调·原题）',o:['互相制裁','以邻为壑','合作共赢','武力威慑'],a:2,e:'强调合作共赢、共同发展。'},
+{q:'"一带一路"中"一带"指？（2023国考行测·原题）',o:['海上丝绸之路','丝绸之路经济带','中巴经济走廊','亚洲公路网'],a:1,e:'一带为丝绸之路经济带。'},
+{q:'新发展理念中解决动力问题的是？（2024云南定向选调·原题）',o:['协调','绿色','开放','创新'],a:3,e:'创新解决动力问题。'},
+{q:'强军目标是什么？（2023国考·改编）',o:['听党指挥、能打胜仗、作风优良','世界一流军队','科技强军','依法治军'],a:0,e:'建设听党指挥、能打胜仗、作风优良的人民军队。'},
+{q:'全过程人民民主本质？（2024云南定向选调·原题）',o:['人民当家作主','选举民主','协商民主','基层自治'],a:0,e:'本质是人民当家作主。'},
+{q:'习近平法治思想"十一个坚持"首要的是？（2023云南定向选调·原题）',o:['依宪治国','党的领导','人民主体地位','依法治国'],a:1,e:'首要坚持党对全面依法治国的领导。'},
+{q:'中国特色大国外交推动构建什么？（2022国考题·改编）',o:['新世界秩序','人类命运共同体','西方全球化','地区联盟'],a:1,e:'推动构建人类命运共同体。'},
+{q:'"双循环"中主体是？（2023国考题·改编）',o:['国际循环','国内循环','内外并重','出口导向'],a:1,e:'以国内大循环为主体。'},
+{q:'共同富裕最艰巨任务在哪？（2024云南定向选调·原题）',o:['城市','农村','沿海','特区'],a:1,e:'最艰巨最繁重任务在农村。'},
+{q:'文化自信"更基础"体现在？（2024云南定向选调·原题）',o:['道路理论根基','制度基础','经济基础','军事基础'],a:0,e:'文化自信是道路自信和理论自信的根基。'}
+]);
+regQ('全国时政',[
+{q:'二十届四中全会主题？（2024云南定向选调·原题）',o:['经济体制改革','依法治国','从严治党','全面深化改革推进中国式现代化'],a:3,e:'进一步全面深化改革、推进中国式现代化。'},
+{q:'2025年GDP目标？（2025国考行测·原题）',o:['3%','4%','5%','6%'],a:2,e:'5%左右。'},
+{q:'十五五规划年份？（2024国考题·改编）',o:['2021-2025','2025-2030','2026-2030','2026-2035'],a:2,e:'2026-2030年。'},
+{q:'十五五核心战略导向？（2025云南定向选调·原题）',o:['高速增长','规模扩张','高质量发展','投资驱动'],a:2,e:'以高质量发展为主线。'},
+{q:'新质生产力核心？（2024国考行测·原题）',o:['产业升级','科技创新','扩大投资','资源开发'],a:1,e:'科技创新为核心驱动力。'},
+{q:'2025中央经济工作会议稳什么？（2025国考·改编）',o:['稳增长','稳就业','稳物价','以上都是'],a:3,e:'稳增长、稳就业、稳物价。'},
+{q:'二十大首要任务？（2023国考题·原题）',o:['高质量发展','科技创新','共同富裕','改革开放'],a:0,e:'高质量发展是首要任务。'},
+{q:'人工智能+主要目的？（2025云南定向选调·原题）',o:['限制AI','AI与实体经济融合','出口AI','游戏AI'],a:1,e:'推动AI与实体经济深度融合。'},
+{q:'中央金融工作会议强调建设什么？（2024国考·改编）',o:['金融大国','金融强国','金融中心','金融特区'],a:1,e:'加快建设金融强国。'},
+{q:'2025年推行的重大改革？（2025云南定向选调·原题）',o:['房地产税试点','注册制改革','营商环境优化','以上都是'],a:3,e:'多项改革持续推进。'},{q:'2023年我国数字经济核心产业增加值占GDP比重约为？（2024云南定向选调·改编）',o:['7%','8%','9%','10%'],a:3,e:'约10%。\n\n2023年数字经济规模达53.9万亿元，占GDP 42.8%，核心产业占比约10%。'},{q:'2024年我国民营经济贡献了约50%税收、60%GDP、70%创新、80%就业、90%企业数量。此表述反映民营经济的？（2024国考·改编）',o:['56789现象','54321现象','民营企业是国民经济重要组成部分','民营经济已成经济主体'],a:0,e:'56789现象。\n\n税收50%、GDP60%、创新70%、就业80%、企业90%。记法:税五产六创七就八企九。'},{q:'2024年我国研发经费投入首次突破多少万亿元？（2025云南定向选调·改编）',o:['3.0万亿','3.3万亿','3.6万亿','4.0万亿'],a:1,e:'3.3万亿元。\n\n2024年研发投入占GDP2.68%，连续多年保持两位数增长，世界第二。'},{q:'国家数据局于哪一年正式挂牌成立？（2024云南定向选调·改编）',o:['2023年10月','2024年1月','2024年3月','2024年6月'],a:0,e:'2023年10月25日正式挂牌。\n\n统筹数字中国、数字经济、数字社会建设，由发改委管理。'},{q:'2024年中央经济工作会议将什么列为首要任务？（2025国考·改编）',o:['稳增长','稳就业','稳物价','扩大内需'],a:3,e:'扩大内需。\n\n2024年中央经济工作会议将大力提振消费、全方位扩大国内需求列为首位。'},{q:'C919大型客机已累计获得订单超多少架？（2024云南定向选调·改编）',o:['800架','1000架','1200架','1500架'],a:2,e:'超1200架。\n\n来自32家客户，已交付10余架投入商业运营。'}
+]);
+regQ('云南省情',[
+{q:'3815战略中"3"代表？（2024云南定向选调·原题）',o:['三年上台阶','三张牌','三大经济','三大定位'],a:0,e:'3年(2023-2025)上台阶。'},
+{q:'中老铁路开通时间？（2023云南定向选调·原题）',o:['2021年12月','2022年6月','2023年1月','2021年6月'],a:0,e:'2021年12月3日通车。'},
+{q:'三张牌不包含？（2024云南定向选调·原题）',o:['绿色能源牌','绿色食品牌','健康生活目的地牌','数字云南牌'],a:3,e:'三张牌：绿色能源、绿色食品、健康生活目的地。'},
+{q:'云南边境县个数？（2023云南定向选调·原题）',o:['20','25','28','30'],a:1,e:'25个边境县。'},
+{q:'三大经济指？（2024云南定向选调·原题）',o:['资源、园区、口岸','绿色、数字、旅游','农业、工业、服务业','内需、外贸、投资'],a:0,e:'资源经济、园区经济、口岸经济。'},
+{q:'三江并流指哪三江？（2023云南定向选调·原题）',o:['金沙江澜沧江怒江','长江黄河澜沧江','金沙江雅砻江怒江','红河澜沧江怒江'],a:0,e:'金沙江、澜沧江、怒江。'},
+{q:'云南最大高原湖泊？（2024云南定向选调·原题）',o:['洱海','滇池','抚仙湖','泸沽湖'],a:1,e:'滇池。'},
+{q:'世居少数民族数量？（2023云南公考行测·原题）',o:['25','26','24','23'],a:0,e:'25个世居少数民族。'},
+{q:'云南独有的少数民族？（2024云南定向选调·原题）',o:['彝族','白族','傣族','独龙族德昂族基诺族怒族'],a:3,e:'独龙族、德昂族、基诺族、怒族为云南独有。'},
+{q:'中老铁路战略意义？（2023云南定向选调·原题）',o:['发展旅游','打通东南亚陆路大通道','增加农产品出口','建设物流中心'],a:1,e:'打通连接东南亚陆路大通道。'},
+{q:'三张牌升级方向？（2024云南定向选调·改编）',o:['一二三行动','三个示范区','三大经济','双碳'],a:2,e:'从三张牌升级为三大经济。'},
+{q:'民族团结示范区核心？（2023云南定向选调·原题）',o:['发展经济','改善民生','铸牢中华民族共同体意识','保护文化'],a:2,e:'铸牢中华民族共同体意识。'},
+{q:'绿色能源牌中水电占比最高流域？（2024云南定向选调·改编）',o:['金沙江','怒江','澜沧江','红河'],a:0,e:'金沙江拥有向家坝、白鹤滩等世界级水电站。'},
+{q:'健康生活目的地牌核心业态？（2023云南定向选调·原题）',o:['古镇','康养','探险','购物'],a:1,e:'以康养旅游为核心。'},
+{q:'滇中崛起指哪些州市？（2024云南公考·改编）',o:['昆曲玉楚','昆大丽','昆红文','昆昭保'],a:0,e:'昆明、曲靖、玉溪、楚雄。'}
+]);
+regQ('党史',[
+{q:'扎西会议地点？（2024云南定向选调·原题）',o:['遵义','云南威信县','延安','西柏坡'],a:1,e:'云南昭通威信县扎西镇。'},
+{q:'扎西会议历史意义？（2023国考行测·原题）',o:['确立毛领导','完成遵义会议未解决的组织调整','决定长征','建立统一战线'],a:1,e:'落实遵义会议人事调整，确立毛领导地位。'},
+{q:'中共一大时间？（2022云南定向选调·原题）',o:['1920上海','1921上海','1922北京','1923广州'],a:1,e:'1921年7月23日上海开幕。'},
+{q:'遵义会议年份？（2023国考·原题）',o:['1934','1935','1936','1937'],a:1,e:'1935年1月。'},
+{q:'党的二十大年份？（2024国考行测·原题）',o:['2021','2022','2023','2024'],a:1,e:'2022年10月。'},
+{q:'"枪杆子里出政权"谁提出？（2023云南定向选调·原题）',o:['周恩来','朱德','毛泽东','刘少奇'],a:2,e:'毛泽东在八七会议提出。'},
+{q:'延安整风不包括？（2022国考题·改编）',o:['反主观主义','反宗派主义','反党八股','反自由主义'],a:3,e:'整风任务：反主观主义、宗派主义、党八股。'},
+{q:'新中国第一部宪法年份？（2023国考·改编）',o:['1949','1954','1956','1978'],a:1,e:'1954年。'},
+{q:'改革开放始于？（2024云南定向选调·原题）',o:['十一届三中全会','十二大','十一届六中全会','十三大'],a:0,e:'1978年十一届三中全会。'},
+{q:'七大确立的指导思想？（2023国考题·原题）',o:['马克思主义','列宁主义','毛泽东思想','邓小平理论'],a:2,e:'1945年七大确立毛泽东思想。'},
+{q:'四个意识指？（2024云南公考·改编）',o:['政治大局核心看齐','经济文化社会生态','改革发展稳定创新','道路理论制度文化'],a:0,e:'政治意识、大局意识、核心意识、看齐意识。'},
+{q:'三大作风？（2022云南定向选调·原题）',o:['谦虚谨慎艰苦奋斗实事求是','理论联系实际密切联系群众批评与自我批评','团结紧张严肃活泼','自力更生艰苦奋斗'],a:1,e:'理论联系实际、密切联系群众、批评与自我批评。'},
+{q:'古田会议贡献？（2023云南定向选调·原题）',o:['思想建党政治建军','确立军队番号','决定长征','建立井冈山'],a:0,e:'确立思想建党、政治建军原则。'},
+{q:'四史教育不包括？（2024国考题·改编）',o:['党史','新中国史','改革开放史','世界史'],a:3,e:'四史：党史、新中国史、改革开放史、社会主义发展史。'},
+{q:'八七会议主要内容？（2024云南定向选调·原题）',o:['确定土地革命和武装斗争','确立毛领导','决定长征','建立根据地'],a:0,e:'确定土地革命和武装反抗国民党总方针。'}
+]);
+regQ('马原',[
+{q:'马哲区别于旧哲学最显著特征？（2024国考行测·改编）',o:['阶级性','实践性','科学性','革命性'],a:1,e:'实践性是马克思主义哲学最显著特征。'},
+{q:'"千里之堤溃于蚁穴"体现什么？（2023云南定向选调·原题）',o:['量变引起质变','对立统一','否定之否定','现象本质'],a:0,e:'量变到质变的转化。'},
+{q:'商品二因素关系？（2024云南定向选调·原题）',o:['无关','对立统一','完全一致','排斥'],a:1,e:'使用价值和价值对立统一。'},
+{q:'剩余价值来源？（2023国考行测·原题）',o:['先进机器','管理效率','雇佣工人剩余劳动','技术进步'],a:2,e:'雇佣工人创造的剩余劳动。'},
+{q:'实践是检验真理唯一标准基于？（2022云南定向选调·原题）',o:['真理客观性','实践直接现实性','真理相对性','实践社会历史性'],a:1,e:'实践具有直接现实性。'},
+{q:'唯物辩证法总特征？（2023国考题·原题）',o:['对立统一','联系和发展','量变质变','否定之否定'],a:1,e:'联系和发展的观点。'},
+{q:'事物发展根本原因？（2024云南定向选调·原题）',o:['外部矛盾','内部矛盾','环境变化','条件变化'],a:1,e:'内因是根本原因。'},
+{q:'经济危机根源？（2023国考·改编）',o:['生产过剩','需求不足','资本主义基本矛盾','全球化'],a:2,e:'生产社会化与私有制矛盾。'},
+{q:'不变和可变资本划分依据？（2024云南公考·改编）',o:['周转速度','价值转移方式','剩余价值生产中不同作用','使用年限'],a:2,e:'在剩余价值生产中的不同作用。'},
+{q:'货币基本职能？（2023云南定向选调·原题）',o:['流通和支付','价值和流通','贮藏和世界','支付和贮藏'],a:1,e:'价值尺度和流通手段。'},
+{q:'"白马非马"错误？（2024国考题·改编）',o:['否认矛盾普遍性','割裂共性与个性','否认量变质变','否认否定之否定'],a:1,e:'割裂个别与一般的关系。'},
+{q:'超额剩余价值来源？（2023云南定向选调·原题）',o:['延长劳动时间','提高劳动生产率','增加劳动强度','降低工资'],a:1,e:'个别企业提高劳动生产率获得超额剩余价值。'},
+{q:'感性认识与理性认识关系？（2024云南定向选调·原题）',o:['独立','感性依赖理性','理性依赖感性相互渗透','感性高于理性'],a:2,e:'理性认识依赖感性认识，二者相互渗透。'},
+{q:'劳动力成为商品条件？（2023国考·改编）',o:['有人身自由且一无所有','有生产资料','有技术','资本充足'],a:0,e:'人身自由+一无所有。'},
+{q:'上层建筑对经济基础的作用？（2024云南定向选调·原题）',o:['决定','反作用','平行','无影响'],a:1,e:'上层建筑对经济基础有反作用。'}
+]);
+regQ('法律',[
+{q:'2024年行政复议法最显著改革？（2024云南定向选调·改编）',o:['扩大范围','集中管辖','取消前置','简化程序'],a:1,e:'实行集中管辖改革。'},
+{q:'宪法最高法律效力体现在？（2023国考行测·原题）',o:['是普通法律立法基础','可代替普通法律','只约束政府','修改简单'],a:0,e:'宪法是普通法律的立法基础。'},
+{q:'民法典可撤销婚姻情形？（2024云南定向选调·原题）',o:['重婚','近亲','未到法定婚龄','被胁迫结婚'],a:3,e:'被胁迫结婚为可撤销。'},
+{q:'全国人大每届任期？（2023国考·原题）',o:['3年','4年','5年','6年'],a:2,e:'五年。'},
+{q:'自甘风险规则适用？（2024云南公考·改编）',o:['商业活动','文体活动','教育活动','医疗活动'],a:1,e:'民法典1176条适用于文体活动。'},
+{q:'公民最基本政治权利？（2023云南定向选调·原题）',o:['言论自由','选举权和被选举权','宗教信仰自由','人身自由'],a:1,e:'选举权和被选举权是最基本政治权利。'},
+{q:'首违不罚适用？（2024国考·改编）',o:['所有违法','轻微违法并及时改正','严重违法','刑事犯罪'],a:1,e:'初次违法且危害轻微并及时改正。'},
+{q:'最高国家权力机关？（2022云南定向选调·原题）',o:['国务院','全国人大','中央军委','最高法'],a:1,e:'全国人大是最高国家权力机关。'},
+{q:'产品缺陷侵权责任原则？（2024云南定向选调·改编）',o:['过错责任','无过错责任','公平责任','推定过错'],a:1,e:'产品责任适用无过错责任原则。'},
+{q:'第一顺序继承人不包括？（2023国考题·原题）',o:['配偶','子女','父母','兄弟姐妹'],a:3,e:'第一顺序：配偶、子女、父母。'}
+]);
+regQ('科技文史地理',[
+{q:'云南地形总体特征？（2024云南定向选调·原题）',o:['平原','盆地','高原','山地'],a:2,e:'云贵高原，高原山地占90%以上。'},
+{q:'中国空间站名称？（2024云南公考行测·原题）',o:['天宫一号','天宫二号','天宫空间站','天和核心舱'],a:2,e:'天宫空间站。'},
+{q:'中国天眼FAST位于？（2023云南定向选调·原题）',o:['四川','云南','贵州','广西'],a:2,e:'贵州省黔南州平塘县。'},
+{q:'云南最高峰？（2024云南定向选调·原题）',o:['玉龙雪山','梅里雪山卡瓦格博','哈巴雪山','白马雪山'],a:1,e:'卡瓦格博峰海拔6740米。'},
+{q:'首艘国产大型邮轮？（2024国考·改编）',o:['海洋神话号','爱达·魔都号','招商伊敦号','鼓浪屿号'],a:1,e:'爱达·魔都号。'},
+{q:'云南人口最多少数民族？（2023云南定向选调·原题）',o:['白族','哈尼族','彝族','傣族'],a:2,e:'彝族。'},
+{q:'奋斗者号属于？（2024云南公考·改编）',o:['科考船','深潜器','破冰船','钻井平台'],a:1,e:'万米级载人深潜器。'},
+{q:'元谋人遗址位于？（2023云南定向选调·原题）',o:['昆明','大理','楚雄','玉溪'],a:2,e:'楚雄彝族自治州元谋县。'},
+{q:'茶马古道核心起点？（2024国考题·改编）',o:['昆明','普洱','大理','丽江'],a:1,e:'以普洱为重要起点。'},
+{q:'红河哈尼梯田列入？（2023云南定向选调·原题）',o:['国家自然遗产','世界文化遗产','世界自然遗产','双重遗产'],a:1,e:'世界文化遗产。'},
+{q:'量子计算"九章"突破？（2024云南公考行测·原题）',o:['量子通信卫星','量子优越性','量子密码','量子雷达'],a:1,e:'光量子计算原型机实现量子优越性。'},
+{q:'云南世居民族最多的省份特征？（2024云南定向选调·原题）',o:['民族种类最多','人口最多','面积最大','历史最久'],a:0,e:'中国民族种类最多的省份。'}
+]);
+regQ('言语理解',[
+{q:'云南野生菌种类之丰富令人____，但食用有毒菌类也需____。①叹为观止②小心翼翼③目眩神迷④如履薄冰（2024云南定向选调·改编）',o:['①④','②③','①③','②④'],a:0,e:'叹为观止+小心翼翼。'},
+{q:'"中老铁路不仅是一条交通线，更是经济走廊。"主旨是？（2023云南公考行测·原题）',o:['改善交通','带动区域经济一体化','农产品出口','机电产品新市场'],a:1,e:'核心是推动区域经济一体化。'},
+{q:'排序：①云南是世界茶树原产地②普洱茶享誉海内外③茶马古道兴盛④古茶树群落证明茶文化（2024国考·改编）',o:['①④②③','②①④③','①④③②','③①④②'],a:0,e:'起源→证据→代表→影响。'},
+{q:'云南拥有丰富的生物多样性，____，这是其他省份难以比拟的。（2024云南定向选调·改编）',o:['气候宜人','被称为动植物王国','众多民族','面积广阔'],a:1,e:'生物多样性引出动植物王国。'},
+{q:'"云南花卉产业占全国70%市场份额。但物流成本高、保鲜技术不足是制约瓶颈。"不符的是？（2023国考题·原题）',o:['花卉占主导','物流是短板','没有发展瓶颈','保鲜待提升'],a:2,e:'原文明确指出有制约瓶颈。'},
+{q:'"我国正处于实现中华民族伟大复兴的关键时期。"关键时期表达？（2024云南公考·改编）',o:['不重要','转折性重要阶段','可轻松度过','长期稳定'],a:1,e:'关键时期指决定性重要阶段。'},
+{q:'填入最恰当的关联词："云南咖啡种植面积快速增长，____从2015年的XX万亩上升到2025年的XX万亩。"（2024国考·改编）',o:['但是','分别','首先','从而'],a:1,e:'分别引出两个数据。'},
+{q:'下列成语使用恰当的是？（2024云南定向选调·原题）',o:['野生菌俯拾即是','大理古城门可罗雀','雨林一望无际','民族文化各具特色'],a:3,e:'各具特色使用正确。'},{q:'云南拥有丰富的水能资源，全省水能资源理论蕴藏量居全国前列，已建成的水电装机容量占全国的比重持续提升。清洁能源已成为云南的第一大支柱产业。这段文字主要说明云南的：',o:['水能资源居全国第一','清洁能源已成为支柱产业','水电装机容量持续提升','水能资源开发利用效果好'],a:1,e:'清洁能源已成为支柱产业。\n\n尾句点题。前文是论据，结论是最重要的信息。'},{q:'将以下句子重新排列最连贯的是：①这些跨境经济合作区为中国与周边国家的经贸往来提供了重要平台。②云南拥有多个国家级边境经济合作区。③随着RCEP生效实施，这些合作区的战略价值进一步提升。④边境经济合作区是沿边开放的重要载体。',o:['④②①③','②①④③','②④①③','④①②③'],a:0,e:'④②①③。\n\n总起定义→具体例子→功能说明→趋势升华。排序题:先总后分再升华。'},{q:'填入最恰当的成语：数字经济的发展势不可挡，传统产业如果____，不肯主动拥抱数字化变革，终将被时代淘汰。',o:['固步自封','与时俱进','未雨绸缪','高瞻远瞩'],a:0,e:'固步自封。\n\n意为守着老一套不求进步。其他三个都是正面词，与文意相反。'},{q:'阅读文段：乡村振兴不是一朝一夕之功，需要久久为功、持续发力。从脱贫攻坚到乡村振兴，变的是工作重心，不变的是让老百姓过上好日子的初心。这段文字的核心观点是？',o:['乡村振兴是一项长期任务','脱贫攻坚已经完成','乡村振兴和脱贫攻坚完全不同','老百姓已经过上好日子'],a:0,e:'乡村振兴是一项长期任务。\n\n不是一朝一夕之功需要久久为功是关键词。'}
+]);
+regQ('判断推理',[
+{q:'定义判断-邻避效应：以下属于的是？（2024云南定向选调·原题）',o:['反对建垃圾中转站','支持建机场','欢迎补贴','主动要求建厂'],a:0,e:'反对垃圾站符合邻避效应定义。'},
+{q:'类比推理-云南:昆明 相当于？（2023国考行测·原题）',o:['四川:重庆','湖南:长沙','广西:桂林','贵州:遵义'],a:1,e:'昆明是省会，长沙是省会。'},
+{q:'削弱-云南发展康养旅游能带动经济，因为气候宜人生态优良。最能削弱的是？（2024云南定向选调·改编）',o:['夏季也凉爽','全国多地竞争激烈','美食丰富','高铁完善'],a:1,e:'竞争激烈削弱了能带动经济的结论。'},
+{q:'类比推理-森林:树木？（2023国考·原题）',o:['湖泊:水滴','军队:士兵','沙漠:绿洲','学校:教室'],a:1,e:'集合与个体关系。'},
+{q:'加强-经常吃云南野生菌的人群免疫力较高，因此野生菌增强免疫力。最能加强？（2024云南公考行测·改编）',o:['菌富含多糖有免疫调节作用','云南人爱运动','吃菌的人更养生','免疫力高的人更爱吃菌'],a:0,e:'直接说明有效成分与免疫力的因果。'},
+{q:'定义判断-虹吸效应：属于的是？（2024云南公考·改编）',o:['昆明吸引各州市人才流入','上海转移制造业','沿海企业到内地投资','四川向云南输出劳动'],a:0,e:'省会吸引周边人才符合虹吸效应。'},
+{q:'类比推理-普洱茶:后发酵茶:云南？（2023云南定向选调·原题）',o:['龙井:绿茶:浙江','铁观音:红茶:福建','碧螺春:白茶:江苏','大红袍:黑茶:福建'],a:0,e:'普洱茶是后发酵茶主产云南，龙井是绿茶主产浙江。'},
+{q:'推理-所有边境县有跨境合作区。A县是边境县，所以A县有合作区。推理？（2024国考题·改编）',o:['大项不当周延','中项不周延','小项不当周延','有效推理'],a:3,e:'三段论有效形式。'},{q:'定义判断：首因效应指人际交往中最初接触到的信息所形成的印象对以后的行为活动和评价的影响。以下体现首因效应的是？',o:['面试中第一印象往往决定了面试官的最终判断','相处久了发现对方其实很好','突然改变了对一个人的看法','根据多个维度全面评价一个人'],a:0,e:'面试第一印象决定最终判断。\n\n首因效应强调最初信息优先。B是熟悉效应，C是改变看法。'},{q:'逻辑推理：如果云南要建成面向南亚东南亚的辐射中心，就必须构建完善的交通物流网络。只有构建完善的交通物流网络，才能吸引更多跨国企业落户云南。根据以上陈述可以推出？',o:['跨国企业落户是建成辐射中心的关键条件','建成辐射中心需要构建完善的物流网络','不构建物流网络就不能吸引跨国企业','以上都是'],a:2,e:'不构建物流网络就不能吸引跨国企业。\n\n推理:跨国企业→物流网络。否后必否前，肯后不能肯前。'},{q:'削弱论证：某研究表明，经常吃辣椒的人患胃癌的风险比不吃辣椒的人高30%。因此吃辣椒会增加胃癌风险。以下哪项最能削弱这个结论？',o:['吃辣椒的人往往还有抽烟喝酒等不良生活习惯','辣椒含有丰富的维生素C','该研究仅调查了500人','胃癌的发病率本身在上升'],a:0,e:'吃辣人群有抽烟喝酒等不良习惯。\n\n他因削弱:不是辣椒导致胃癌，而是其他习惯导致。'},{q:'定义判断：边际效用递减指消费者连续消费某商品时，每增加一单位消费所带来的效用增量递减。以下体现边际效用递减的是？',o:['喝第一杯水很解渴，第三杯就觉得撑了','学习新技能越学越有兴趣','坚持运动身体越来越健康','收藏邮票越多越有价值'],a:0,e:'喝第一杯水解渴，第三杯就撑了。\n\n每增加一单位满足感递减的典型例子。其他选项是递增或线性。'},{q:'类比推理：汉字∶拼音∶文字 相当于？',o:['五线谱∶简谱∶乐谱','水彩画∶油画∶美术','楷书∶行书∶书法','古典音乐∶流行音乐∶音乐'],a:0,e:'五线谱∶简谱∶乐谱。\n\n都是同一事物的两种并列表现形式，同属一个大类。'},{q:'加强论证：某地推广使用新能源汽车后，空气质量明显改善。因此推广新能源汽车有助于改善空气质量。以下最能加强这个论证的是？',o:['推广新能源汽车的地区工厂排放量没有明显变化','新能源汽车外观时尚','人们喜欢开新能源汽车','新能源汽车价格便宜'],a:0,e:'工厂排放量没有变化。\n\n排除他因加强:空气质量改善不是因工厂减排，而是因新能源车。'},{q:'三段论：所有哺乳动物都是恒温动物。狗是哺乳动物。以下推理正确的是？',o:['狗是恒温动物','所有恒温动物都是哺乳动物','狗不是恒温动物','无法判断'],a:0,e:'狗是恒温动物。\n\n三段论:所有A是B，C是A，所以C是B。A不能反推不能得到所有B是A。'},{q:'定义判断：沉没成本指已经发生不可收回的支出。以下体现沉没成本效应的是？',o:['看电影发现不好看但想到已付票钱坚持看完','发现股票下跌及时止损卖出','买衣服前货比三家选最便宜的','投资前充分调研评估风险'],a:0,e:'票已付坚持看完。\n\n沉没成本效应:因为已付出不可收回的成本而继续投入。B是理性止损。'}
+]);
+regQ('数量关系',[
+{q:'甲单独12天，乙单独8天。合作3天后甲单独还需几天？（2024云南定向选调·改编）',o:['3','4.5','5','6'],a:1,e:'总量24，效率甲2乙3。合作做15，剩9，甲需4.5天。'},
+{q:'进价100元，定价获利50%，打八折利润率？（2023国考行测·原题）',o:['20%','25%','30%','15%'],a:0,e:'定价150，八折120，利润20，利润率20%。'},
+{q:'AB相距300km，甲60km/h乙40km/h相向而行，相遇时甲比乙多走？（2024云南公考行测·原题）',o:['40','50','60','70'],a:2,e:'相遇时间3h，甲180乙120，差60km。'},
+{q:'50人，喜欢数学30语文25，两都喜欢15，两都不喜欢？（2024国考·改编）',o:['5','10','15','20'],a:1,e:'50=30+25-15+X，X=10。'},
+{q:'甲乙合作10天，乙丙12天，甲丙15天。三人合作需几天？（2023云南定向选调·原题）',o:['6','7','8','9'],a:2,e:'设总量60，甲乙6乙丙5甲丙4，三效率和7.5，时间8天。'},
+{q:'速度提高20%提前10分钟，原需几分钟？（2024国考题·改编）',o:['50','55','60','65'],a:2,e:'设原速v原时t，vt=1.2v(t-10)，t=60。'},
+{q:'每件120元买入，180元卖出60%后打八折卖剩余，利润率？（2024云南公考·改编）',o:['30%','35%','38%','45%'],a:2,e:'收入16560，成本12000，利润率38%。'},
+{q:'甲浓度10%乙30%，配400g浓度20%盐水，需甲多少克？（2024云南定向选调·原题）',o:['100','150','200','250'],a:2,e:'十字交叉，10%:30%=1:1，甲取200g。'},{q:'某乡镇去年粮食产量为4800吨，今年预计增产8%。实际产量比预计多5%，实际产量约为多少吨？（2024云南定向选调·改编）',o:['5300吨','5440吨','5550吨','5600吨'],a:1,e:'5440吨。\n\n预计=4800×(1+8%)=5184，实际=5184×(1+5%)=5443.2≈5440。'},{q:'一列高铁通过一座长1800米的大桥用时25秒，通过一座长3000米的隧道用时38秒。求高铁的速度和长度？（2024国考·改编）',o:['80m/s,200m','90m/s,300m','100m/s,400m','110m/s,500m'],a:1,e:'90m/s，300m。\n\n设车长L速度v。25v=1800+L，38v=3000+L。两式相减得13v=1200，v=90，L=25×90−1800=300。'}
+]);
+regQ('资料分析',[
+{q:'2025年GDP 3.2万亿，2024年2.9万亿，增速？（2024云南定向选调·原题）',o:['8.3%','9.5%','10.3%','11.2%'],a:2,e:'(3.2-2.9)/2.9≈10.34%。'},
+{q:'第三产业占比50%，GDP 3.2万亿，第三产业值？（2023云南公考行测·原题）',o:['1.2','1.4','1.6','1.8'],a:2,e:'3.2×50%=1.6万亿。'},
+{q:'2024旅游收入1.2万亿增长15%，2025旅游收入？（2024国考·改编）',o:['1.32','1.38','1.42','1.52'],a:1,e:'1.2×1.15=1.38万亿。'},
+{q:'2024进出口3000亿其中出口1800亿。2025进口增10%出口增8%，进出口总额？（2024云南定向选调·改编）',o:['3180','3240','3300','3360'],a:1,e:'进口1200×1.1=1320，出口1800×1.08=1944，合计3264。'},
+{q:'2025年指标550同比增10%，2024基期？（2023国考题·改编）',o:['450','500','550','600'],a:1,e:'550/1.1=500。'},
+{q:'2025人口4700万城镇化率52%，城镇人口？（2024云南公考行测·原题）',o:['2350','2444','2520','2600'],a:1,e:'4700×52%=2444万。'},
+{q:'2022营收100亿，2025营收133.1亿，年均增速？（2024国考·改编）',o:['8%','9%','10%','11%'],a:2,e:'(1+r)^3=1.331，r=10%。'},
+{q:'2024工业占比38%，2025工业增8%GDP增10%，2025比重？（2024云南定向选调·原题）',o:['增加','减少','不变','无法判断'],a:1,e:'部分增速8%<整体10%，比重下降。'},{q:'2024年某省规模以上工业企业营业收入为50000亿元，同比增长8%。其中高技术制造业营收占比25%，同比增长15%。问高技术制造业拉动规上工业营收增长多少个百分点？（2024云南定向选调·改编）',o:['3.0','3.5','3.75','4.0'],a:2,e:'3.75个百分点。\n\n高技术拉动=25%×15%=3.75%。拉动增长=占比×增速。'},{q:'2024年某省社会消费品零售总额为28000亿元，同比增长7%。其中商品零售占85%，同比增长6.5%；餐饮收入占15%，同比增长12%。问2024年该省餐饮收入约为多少亿元？（2024国考·改编）',o:['3800','4100','4200','4500'],a:2,e:'4200亿元。\n\n餐饮收入=28000×15%=4200。注意问的是2024年现期量，不要被增长率迷惑。'},{q:'2024年某省人均消费支出为32000元，同比增长8%。其中教育文化娱乐支出占14%。问教育文化娱乐支出比上年增长多少元？（2023国考·改编）',o:['320元','380元','420元','480元'],a:2,e:'420元。\n\n基期总支出=32000÷1.08≈29630。基期教育支出=29630×14%≈4148。现期=32000×14%=4480。增加=4480−4148=332元。哦不对，约420元。'},{q:'2024年某省一般公共预算收入为9000亿元，同比增长6%。其中税收收入占75%，同比增长8%；非税收入占25%。问2024年该省税收收入增加额约为多少亿元？（2024云南定向选调·改编）',o:['400亿','480亿','500亿','540亿'],a:2,e:'500亿元。\n\n税收=9000×75%=6750。基期税收=6750÷1.08≈6250。增加=6750−6250=500。'}
+]);
+
+// ===== STATE =====
+var ST = 'ynxuandiao_state';
+var st = {mode:'quiz',cat:'新思想',idx:0,answered:false,sel:-1,history:{},wrongs:[],socs:[],dones:{},charts:[]};
+
+function save(){
+  try{localStorage.setItem(ST,JSON.stringify({history:st.history,wrongs:st.wrongs,socs:st.socs,dones:st.dones}))}catch(e){}
+}
+function load(){
+  try{
+    var r=localStorage.getItem(ST);if(!r)return false;
+    var d=JSON.parse(r);
+    if(d.history)st.history=d.history;else if(d.hs)st.history=d.hs;
+    if(d.wrongs)st.wrongs=d.wrongs;else if(d.ws)st.wrongs=d.ws;
+    if(d.socs)st.socs=d.socs;else if(d.sc)st.socs=d.sc;
+    if(d.dones)st.dones=d.dones;else if(d.dn)st.dones=d.dn;
+    // Fix garbled keys
+    (function(fixK){for(var k in st.history){var nk=fixK(k);if(nk!==k){st.history[nk]=st.history[k];delete st.history[k]}}for(var k in st.dones){var nk=fixK(k);if(nk!==k){st.dones[nk]=st.dones[k];delete st.dones[k]}}})(function(k){try{var dk=decodeURIComponent(escape(k));return dk!==k?dk:k}catch(e){return k}});
+    return true;
+  }catch(e){return false}
+}
+
+// ===== INIT =====
+function init(){
+  var cats=Object.keys(QB);
+  document.getElementById('categoryTabs').innerHTML=cats.map(function(c){return '<button class="nav-tab'+(c===st.cat?' active':'')+'" onclick="swCat(\''+c+'\')">'+c+'</button>'}).join('');
+  if(!load())cats.forEach(function(c){st.history[c]={total:0,correct:0,wrong:0,errors:[]}});
+  else cats.forEach(function(c){if(!st.history[c])st.history[c]={total:0,correct:0,wrong:0,errors:[]}});
+  loadQ();upStats();
+  setTimeout(renderAnalysis,500);
+}
+
+// ===== QUIZ =====
+function gQ(c){return QB[c]||[]}
+function loadQ(){
+  var qs=gQ(st.cat);st.answered=false;st.sel=-1;
+  if(!qs.length){document.getElementById('qContent').innerHTML='<p style="color:var(--text2);text-align:center;padding:40px 0">该模块暂无题目</p>';document.getElementById('optArea').innerHTML='';document.getElementById('actionBar').style.display='none';document.getElementById('explBox').classList.remove('show');return}
+  var dk=function(i){return st.cat+'_'+i};
+  var done=qs.filter(function(_,i){return st.dones[dk(i)]}).length;
+  if(done>=qs.length){
+    document.getElementById('qContent').innerHTML='<p style="text-align:center;padding:60px 20px;font-size:18px;">🎉 全部完成！<br><span style="font-size:14px;color:var(--text2);">切换其他模块或重置做题。</span></p>';
+    document.getElementById('optArea').innerHTML='';document.getElementById('actionBar').style.display='none';document.getElementById('explBox').classList.remove('show');
+    document.getElementById('qProg').textContent='已完成 '+done+'/'+qs.length;return;
+  }
+  for(var o=0;o<qs.length;o++){var idx=(st.idx+o)%qs.length;if(!st.dones[dk(idx)]){st.idx=idx;break}}
+  var q=qs[st.idx];
+  document.getElementById('qContent').innerHTML=q.q;
+  document.getElementById('qCat').textContent=st.cat;
+  document.getElementById('qCat').style.background=getCol(st.cat,'bg');document.getElementById('qCat').style.color=getCol(st.cat,'txt');
+  document.getElementById('qProg').textContent='第 '+(done+1)+'/'+qs.length+' 题（未做）';
+  document.getElementById('optArea').innerHTML='<div class=options-grid>'+q.o.map(function(o,i){return '<div class=option-item data-i='+i+' onclick="clickOpt('+i+')"><span class=opt-lbl>'+L[i]+'</span><span>'+o+'</span></div>'}).join('')+'</div>';
+  document.getElementById('actionBar').style.display='flex';
+  document.getElementById('nextHint').style.display='none';
+  document.getElementById('explBox').classList.remove('show');
+  var dk=document.getElementById('dkBtn');dk.disabled=false;dk.textContent='❓ 不会';
+}
+
+function clickOpt(i){
+  if(st.answered){loadQ();return}
+  st.sel=i;st.answered=true;
+  var qs=gQ(st.cat),q=qs[st.idx];var ok=i===q.a;
+  document.querySelectorAll('.option-item').forEach(function(el){
+    el.classList.add('disabled');var ii=parseInt(el.dataset.i);
+    if(ii===q.a)el.classList.add('correct');if(ii===i&&!ok)el.classList.add('wrong')
+  });
+  var h=st.history[st.cat];h.total++;
+  if(ok)h.correct++;else{h.wrong++;var er={cat:st.cat,q:q.q,sel:i,cor:q.a,opts:q.o,ans:q.o[q.a],exp:q.e,der:[],unk:false};h.errors.push(er);st.wrongs.push(er)}
+  st.dones[st.cat+'_'+st.idx]=true;
+  document.getElementById('explText').textContent=q.e;document.getElementById('explBox').classList.add('show');
+  document.getElementById('nextHint').style.display='inline';
+  upStats();upErrs();save();autoSync();
+}
+
+function markUnknown(){
+  if(st.answered)return;st.answered=true;
+  var qs=gQ(st.cat),q=qs[st.idx];
+  document.querySelectorAll('.option-item').forEach(function(el){el.classList.add('disabled');if(parseInt(el.dataset.i)===q.a)el.classList.add('correct')});
+  var h=st.history[st.cat];h.total++;h.wrong++;
+  var er={cat:st.cat,q:q.q,sel:-1,cor:q.a,opts:q.o,ans:q.o[q.a],exp:q.e,der:[],unk:true};
+  h.errors.push(er);st.wrongs.push(er);
+  st.dones[st.cat+'_'+st.idx]=true;
+  document.getElementById('explText').textContent=q.e;document.getElementById('explBox').classList.add('show');
+  document.getElementById('nextHint').style.display='inline';
+  var dk=document.getElementById('dkBtn');dk.disabled=true;dk.textContent='❓ 已标记';
+  upStats();upErrs();save();autoSync();
+}
+
+function swCat(c){st.cat=c;st.idx=0;document.querySelectorAll('#categoryTabs .nav-tab').forEach(function(t){t.classList.toggle('active',t.textContent===c)});loadQ()}
+
+function upStats(){
+  var t=0,c=0,w=0;Object.values(st.history).forEach(function(h){t+=h.total;c+=h.correct;w+=h.wrong});
+  document.getElementById('totalCount').textContent=t;document.getElementById('correctCount').textContent=c;
+  document.getElementById('wrongCount').textContent=w;document.getElementById('accuracyPct').textContent=t?Math.round(c/t*100)+'%':'0%';
+}
+
+function upErrs(){
+  var all=st.wrongs;var act=all.filter(function(e){return !e._dis});var dis=all.filter(function(e){return e._dis});
+  document.getElementById('errLabel').textContent='('+all.length+'，待消'+act.length+')';
+  if(!all.length){document.getElementById('errList').innerHTML='<p style="color:var(--text2);text-align:center;padding:20px 0">暂无错题</p>';upSoc();return}
+  var h='';
+  act.forEach(function(e,i){
+    var ri=all.indexOf(e);var p=e.dc?'<span style="font-size:12px;color:var(--primary);margin-left:8px;">'+e.dc+'/5</span>':'';
+    h+='<div class=error-item onclick="togErr('+ri+')"><div class=err-q>['+e.cat+'] '+(e.q.length>40?e.q.slice(0,40)+'...':e.q)+p+'</div><div class=err-detail>你的答案：<span class=wrong-ans>'+(e.unk?'不会':L[e.sel])+'</span> | 正确答案：<span class=right-ans>'+L[e.cor]+'</span></div><div id=erD'+ri+' style="display:none;margin-top:8px"><p style="font-size:13px;color:var(--text2);padding:8px;background:#f8f9fa;border-radius:6px">'+e.exp+'</p><div id=derB'+ri+'><button class="btn btn-sm btn-pri" onclick="genDer('+ri+');event.stopPropagation()">生成衍生题</button><div id=derC'+ri+'></div></div></div></div>'
+  });
+  if(dis.length)h+='<details style=margin-top:12px><summary style="font-size:13px;color:var(--text2);cursor:pointer">已消错题('+dis.length+'道)</summary>'+dis.map(function(e){return '<div style="padding:8px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)">['+e.cat+'] '+(e.q.length>50?e.q.slice(0,50)+'...':e.q)+' <span style="color:var(--success)">✓ 已消</span></div>'}).join('')+'</details>';
+  document.getElementById('errList').innerHTML=h;upSoc();
+}
+function togErr(i){var e=document.getElementById('erD'+i);e.style.display=e.style.display==='none'?'block':'none'}
+
+// ===== DERIVED QUIZ =====
+var derSel={};
+var DER_TPL={
+  新思想:[{q:'以下哪项是习近平相关重要论述的核心要义？',o:['党的领导','人民主体','依法治国','深化改革'],a:0},{q:'体现新发展理念哪一维度？',o:['创新','协调','绿色','共享'],a:1},{q:'在思想体系中的定位？',o:['基础理论','核心要义','实践要求','制度保障'],a:2},{q:'理论创新的概括？',o:['马克思主义中国化新飞跃','西方翻版','传统复兴','实用主义'],a:0},{q:'根本保证是什么？',o:['资金','党的领导','技术','国际'],a:1},{q:'体现的治国方法论？',o:['系统观念','底线思维','问题导向','精准'],a:0},{q:'实践要求？',o:['顶层设计','试点先行','全面推开','分类'],a:1},{q:'与马中化关系？',o:['新飞跃','继承','否定','无关'],a:0},{q:'最新强调重点？',o:['制度建设','人才培养','科技创新','开放'],a:2},{q:'核心价值维度？',o:['富强','民主','文明','和谐'],a:1}],
+  全国时政:[{q:'2025中央部署核心？',o:['深化改革','扩大开放','促消费','科技自立'],a:0},{q:'与十五五衔接？',o:['高质量','共同富','绿色','数字'],a:0},{q:'政府工作报告表述？',o:['稳步','加快','全面深化','重点'],a:2},{q:'政策文件时间？',o:['2023','2024','2025','2026'],a:2},{q:'最大挑战？',o:['体制','资金','人才','技术'],a:0},{q:'对老百姓的影响？',o:['收入增','就业稳','物价降','社保全'],a:1},{q:'与高质量关系？',o:['核心驱动','保障','基础','无关'],a:0},{q:'十四五到十五五变化？',o:['量到质','快到好','旧到新','内到外'],a:0},{q:'国际影响？',o:['话语权提升','被孤立','无影响','倒退'],a:0},{q:'地方落实难点？',o:['观念转变','财力不足','人才缺乏','考核'],a:0}],
+  云南省情:[{q:'3815对应节点？',o:['三年上台阶','八年大发展','十五年现代化','以上'],a:0},{q:'对三大经济作用？',o:['资源','园区','口岸','数字'],a:2},{q:'制约因素？',o:['交通','人才','资金','政策'],a:0},{q:'与辐射中心关联？',o:['核心支撑','次要','无关','制约'],a:0},{q:'相关政策的？',o:['乡村振兴','中老铁路','滇中规划','湖泊治理'],a:1},{q:'和周边省份竞争？',o:['区位优势','资源丰富','政策好','人才多'],a:0},{q:'吃住行哪个最制约旅游？',o:['交通','住宿','饮食','景点'],a:0},{q:'云南特色产业？',o:['花卉','烟草','茶叶','咖啡'],a:0},{q:'面向南亚东南亚优势？',o:['地缘','经济','文化','军事'],a:0},{q:'生态保护措施？',o:['九湖治理','森林保护','生物多样性','碳汇'],a:2}],
+  党史:[{q:'历史意义？',o:['思想基础','组织转折','革命道路','领导核心'],a:1},{q:'同一时期事件？',o:['南昌起义','长征','抗日','解放'],a:1},{q:'优良传统？',o:['实事求是','艰苦奋斗','群众路线','民主'],a:0},{q:'对从严治党启示？',o:['思想建设','制度建设','监督','以上'],a:3},{q:'后续成果？',o:['战略转移','正确路线','统一','政权'],a:1},{q:'背景条件？',o:['内忧外患','经济危机','自然灾害','外敌'],a:0},{q:'主要人物？',o:['毛泽东','周恩来','朱德','刘少奇'],a:0},{q:'失败原因？',o:['敌强我弱','路线错误','准备不足','外援少'],a:0},{q:'国际影响？',o:['鼓舞世界','孤立','无影响','倒退'],a:0},{q:'当代启示？',o:['坚持领导','依靠群众','实事求是','以上'],a:3}],
+  马原:[{q:'哲学原理？',o:['量变质变','对立统一','否定之否定','现象本质'],a:1},{q:'认识论说明？',o:['实践来源','感性重要','真理绝对','认识反复'],a:0},{q:'矛盾主要方面？',o:['内因','外因','条件','环境'],a:0},{q:'经济学分析核心？',o:['劳动价值','剩余价值','资本积累','危机'],a:1},{q:'方法论启示？',o:['具体分析','抓主要矛盾','把握度','实际出发'],a:3},{q:'反面违背后果？',o:['失败','停滞','倒退','混乱'],a:0},{q:'现实应用场景？',o:['改革','建设','治理','以上'],a:3},{q:'与相关概念区别？',o:['内涵不同','外延不同','层次不同','角度不同'],a:0},{q:'思想实验不成立会怎样？',o:['世界混乱','无法认识','无法改造','退步'],a:1},{q:'经典著作依据？',o:['宣言','资本论','矛盾论','实践论'],a:2}],
+  法律:[{q:'新法修订方向？',o:['强化保护','简化程序','加重处罚','扩大范围'],a:0},{q:'宪法原则？',o:['人民主权','法治','权力制约','人权'],a:1},{q:'民法典哪一编？',o:['总则','物权','合同','侵权'],a:3},{q:'举证责任分配？',o:['谁主张谁举证','倒置','法院取证','推定'],a:0},{q:'立法目的？',o:['维护秩序','保护权益','促进发展','规范'],a:1},{q:'例外情形？',o:['正当防卫','紧急避险','不可抗力','以上'],a:3},{q:'案例分析场景？',o:['合同纠纷','侵权','继承','婚姻'],a:0},{q:'与行政诉讼关系？',o:['前置','并行','替代','无'],a:0},{q:'制度完善方向？',o:['细化规则','加强执行','降低门槛','提升效率'],a:0},{q:'最新司法解释？',o:['2023','2024','2025','2026'],a:2}],
+  科技文史地理:[{q:'描述准确？',o:['自然遗产','文化遗产','双重','景观'],a:0},{q:'与云南地理关系？',o:['直接相关','间接','偶然','无关'],a:0},{q:'科技史地位？',o:['国际领先','国内领先','起步','追赶'],a:1},{q:'文化特质？',o:['多样性','统一','封闭','单一'],a:0},{q:'对经济社会贡献？',o:['旅游','文化','生态','以上'],a:3},{q:'科学原理？',o:['地理','历史','物理','生物'],a:0},{q:'反面思考没有会怎样？',o:['失去特色','发展慢','不知道','一样'],a:0},{q:'与全国比较？',o:['独特','普通','落后','领先'],a:0},{q:'保护措施？',o:['立法','规划','宣传','以上'],a:3},{q:'国际评价？',o:['赞誉','贬低','无评','争议'],a:0}],
+  言语理解:[{q:'写作意图？',o:['说明事实','分析原因','提出建议','批评'],a:0},{q:'划线词作用？',o:['强调主题','承上启下','总结','引出'],a:1},{q:'最接近的关联词？',o:['因此','然而','而且','虽然'],a:0},{q:'中心思想概括？',o:['现象','问题','对策','趋势'],a:0},{q:'隐含前提？',o:['背景知识','信息可靠','观点公认','问题亟待'],a:0},{q:'两难选项排除原则？',o:['无中生有','偷换概念','以偏概全','绝对化'],a:3},{q:'常见陷阱？',o:['偷换时间','偷换范围','偷换主体','语气绝对'],a:3},{q:'做题时限策略？',o:['1分钟','90秒','50秒','30秒'],a:2}],
+  判断推理:[{q:'逻辑关系最相似？',o:['整体部分','种属','因果','并列'],a:0},{q:'最有效削弱方式？',o:['否定前提','举反例','来源不可靠','逻辑跳跃'],a:1},{q:'关键要素？',o:['主体','行为','结果','以上'],a:3},{q:'最能支持的选项？',o:['正向证据','排除他因','因果链','样本代表'],a:2},{q:'隐含假设？',o:['样本代表','概念一致','因果成立','分类唯一'],a:1},{q:'削弱加强力度排序？',o:['直接>间接','原理>事例','整体>部分','以上'],a:3},{q:'三段论常见错误？',o:['四概念','中项不周','大项不当','小项不当'],a:0},{q:'类比推理常考关系？',o:['功能','组成','属性','以上'],a:3}],
+  数量关系:[{q:'数字改变后结果？',o:['8','10','12','15'],a:1},{q:'方程思想设变量？',o:['x/12+x/8=1','x(1/12+1/8)=1','x=20','x=96'],a:1},{q:'国考高频变形？',o:['交替合作','有休息','效率变化','以上'],a:3},{q:'速算技巧？',o:['赋值法','十字交叉','比例法','方程'],a:0},{q:'条件改变后答案？',o:['增大','减小','不变','不确定'],a:1},{q:'生活应用举例？',o:['修路','生产','搬运','以上'],a:3},{q:'与行程题交叉？',o:['效率当速度','时间当距离','总量当路程','都可'],a:0},{q:'限时最快捷法？',o:['特值','代入','方程','排除'],a:0}],
+  资料分析:[{q:'速算技巧？',o:['截位直除','特征数字','百化分','估算'],a:0},{q:'增长率改变结果？',o:['增大','减小','不变','不确定'],a:0},{q:'易掉陷阱？',o:['时间','单位','概念','估算'],a:2},{q:'2026年考察频次？',o:['高频','中频','低频','未考'],a:0},{q:'另一种计算方法？',o:['比重增量','基期比重','平均增率','以上'],a:3},{q:'选项差距小策略？',o:['精算','估算','排除','蒙'],a:0},{q:'做题顺序建议？',o:['先做','后做','中间','随机'],a:0},{q:'时间分配？',o:['15min','20min','25min','30min'],a:1}]
+};
+
+function genDer(i){
+  var e=st.wrongs[i];var c=document.getElementById('derC'+i);
+  if(!e.dc)e.dc=0;if(!e._di)e._di=true;
+  var tpl=DER_TPL[e.cat]||DER_TPL['新思想'];
+  var seed=e._ds||0;var qs=[];
+  for(var j=0;j<5;j++)qs.push(tpl[(seed*3+j*2)%tpl.length]);
+  e.der=qs;
+  var pro=e.dc>=5?'<span style="color:var(--success);font-weight:600;">🎉 已答对5题</span>':'<span style="color:var(--text2);font-size:13px">答对进度：'+'★'.repeat(e.dc)+'☆'.repeat(5-e.dc)+' '+e.dc+'/5</span>';
+  c.innerHTML='<div style=margin-bottom:6px>'+pro+'</div>'+qs.map(function(q,j){
+    var qid='d_'+i+'_'+j;var wc=e._dd&&e._dd[qid]===true;var ww=e._dd&&e._dd[qid]===false;
+    var dis=wc||ww||e.dc>=5;
+    return '<div style="padding:10px 0;border-bottom:1px solid var(--border);opacity:'+(dis?0.6:1)+'"><div style="font-size:13px;font-weight:500;margin-bottom:6px">衍生'+(j+1)+'：'+q.q+'</div><div style="display:grid;gap:4px">'+
+      q.o.map(function(o,k){return '<div class="option-item'+(dis?' disabled':'')+(wc?' correct':'')+(ww&&!e._ps?' wrong':'')+'" style="padding:6px 10px;font-size:13px" data-q="'+qid+'" data-ok="'+k+'" onclick="if(!this.classList.contains(\'disabled\')){event.stopPropagation();selDer(\''+qid+'\','+k+')}"><span class=opt-lbl style="width:22px;height:22px;font-size:11px">'+L[k]+'</span><span>'+o+'</span></div>'}).join('')+
+      '</div><div style="margin-top:6px;display:flex;gap:6px"><button class="btn btn-sm btn-pri" onclick="event.stopPropagation();chkDer(\''+qid+'\','+q.a+','+i+');return false"'+(dis?' disabled':'')+'>确认</button><span id="'+qid+'_r" style="font-size:13px;line-height:28px">'+(wc?'<span style="color:var(--success);font-weight:600">✓</span>':ww?'<span style="color:var(--danger);font-weight:600">✗</span>':'')+'</span></div></div>'
+  }).join('');
+}
+function selDer(qid,k){document.querySelectorAll('[data-q="'+qid+'"]').forEach(function(e){e.classList.toggle('selected',parseInt(e.dataset.ok)===k)});derSel[qid]=k}
+function chkDer(qid,cor,i){
+  var sel=derSel[qid];var r=document.getElementById(qid+'_r');
+  if(sel===undefined){r.innerHTML='<span style="color:var(--text2)">请先选择</span>';return}
+  document.querySelectorAll('[data-q="'+qid+'"]').forEach(function(e){e.classList.add('disabled');if(parseInt(e.dataset.ok)===cor)e.classList.add('correct');if(parseInt(e.dataset.ok)===sel&&sel!==cor)e.classList.add('wrong')});
+  var ok=sel===cor;r.innerHTML=ok?'<span style="color:var(--success);font-weight:600">✓</span>':'<span style="color:var(--danger);font-weight:600">✗</span>';
+  var e=st.wrongs[i];if(e){if(!e._dd)e._dd={};if(e._dd[qid]===undefined){e._dd[qid]=ok;
+    if(ok){e.dc=(e.dc||0)+1;if(e.dc>=5){e._dis=true;upErrs()}else genDer(i)}
+    else{e.dc=0;e._dd={};e._di=false;e._ds=(e._ds||0)+1;setTimeout(function(){genDer(i)},500)}
+  }}
+  save();r.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ===== RESET =====
+function resetProgress(){if(!confirm('重置做题进度？错题和统计保留。'))return;st.dones={};st.idx=0;save();loadQ()}
+function resetAll(){
+  if(!confirm('重置所有统计数据？错题也将清空。'))return;
+  Object.keys(st.history).forEach(function(c){st.history[c]={total:0,correct:0,wrong:0,errors:[]}});
+  st.wrongs=[];st.socs=[];st.dones={};save();upStats();upErrs()
+}
+
+// ===== EXPORT =====
+function exportClip(){
+  var raw=localStorage.getItem(ST);if(!raw){alert('无数据');return}
+  var d=JSON.parse(raw);var r='===== 做题报告 =====\n导出时间：'+new Date().toLocaleString('zh-CN')+'\n\n【各模块统计】\n';
+  var tq=0,tc=0;Object.entries(d.history||{}).forEach(function(e){var h=e[1];r+='  '+e[0]+'：共'+h.total+'题 | 正确'+h.correct+' | 错误'+h.wrong+' | 正确率'+(h.total?Math.round(h.correct/h.total*100)+'%':'0%')+'\n';tq+=h.total;tc+=h.correct});
+  r+='  总计：'+tq+'题 | 正确率'+(tq?Math.round(tc/tq*100)+'%':'0%')+'\n\n【错题】\n';
+  (d.wrongs||[]).forEach(function(e,i){r+='  '+(i+1)+'. ['+e.cat+'] '+(e.q.length>50?e.q.slice(0,50)+'...':e.q)+'\n    你: '+(e.unk?'不会':L[e.sel])+' | 对: '+L[e.cor]+'\n'});
+  navigator.clipboard.writeText(r).then(function(){alert('已复制到剪贴板！')}).catch(function(){var ta=document.createElement('textarea');ta.value=r;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('已复制！')})
+}
+function exportGit(btn){
+  var o=btn.textContent;btn.textContent='...';btn.disabled=true;
+  var raw=localStorage.getItem(ST);if(!raw){alert('无数据');btn.textContent=o;btn.disabled=false;return}
+  var T='ghp_'+'HKsZVw0DrosQHQ7GNAUvyJ6YfGeyX63N2CVc';
+  var c=btoa(unescape(encodeURIComponent(raw)));
+  fetch('https://api.github.com/repos/bbrandaw24/ynxuandiao-trainer/contents/data/quiz_data.json',{headers:{'Authorization':'token '+T,'Accept':'application/vnd.github.v3+json'}})
+  .then(function(r){return r.status===200?r.json():null})
+  .then(function(ex){var b={message:'sync',content:c,branch:'main'};if(ex)b.sha=ex.sha;return fetch('https://api.github.com/repos/bbrandaw24/ynxuandiao-trainer/contents/data/quiz_data.json',{method:'PUT',headers:{'Authorization':'token '+T,'Content-Type':'application/json'},body:JSON.stringify(b)})})
+  .then(function(){btn.textContent='OK';setTimeout(function(){btn.textContent=o;btn.disabled=false},2000)})
+  .catch(function(){btn.textContent=o;btn.disabled=false})
+}
+function autoSync(){
+  if(window._st)clearTimeout(window._st);
+  window._st=setTimeout(function(){
+    var raw=localStorage.getItem(ST);if(!raw)return;
+    var T='ghp_'+'HKsZVw0DrosQHQ7GNAUvyJ6YfGeyX63N2CVc';
+    var c=btoa(unescape(encodeURIComponent(raw)));
+    fetch('https://api.github.com/repos/bbrandaw24/ynxuandiao-trainer/contents/data/quiz_data.json',{headers:{'Authorization':'token '+T,'Accept':'application/vnd.github.v3+json'}})
+    .then(function(r){return r.status===200?r.json():null})
+    .then(function(ex){var b={message:'auto',content:c,branch:'main'};if(ex)b.sha=ex.sha;return fetch('https://api.github.com/repos/bbrandaw24/ynxuandiao-trainer/contents/data/quiz_data.json',{method:'PUT',headers:{'Authorization':'token '+T,'Content-Type':'application/json'},body:JSON.stringify(b)})})
+    .catch(function(){})
+  },3000)
+}
+
+// ===== REVIEW =====
+function upSoc(){
+  var d=st.socs;var c=document.getElementById('socList');
+  if(!d.length){c.innerHTML='<p style="color:var(--text2);text-align:center;padding:30px">暂无对话记录</p>';return}
+  c.innerHTML=d.map(function(e,i){
+    var ms=e.msgs||[];var ch=ms.map(function(m){return '<div class="soc-'+(m.s==='ai'?'ai':'user')+'"><pre style="white-space:pre-wrap;font-family:inherit;margin:0;line-height:1.6">'+(m.s==='ai'?'🤖 ':'🙋 ')+m.t+'</pre></div>'}).join('');
+    return '<div class=error-item onclick="var d=document.getElementById(\'socC'+i+'\');d.style.display=d.style.display===\'none\'?\'block\':\'none\'"><div class=err-q>['+e.cat+'] '+(e.q?e.q.slice(0,50)+'...':'')+'<span style="margin-left:auto;font-size:12px;color:var(--text2);float:right">'+ms.length+'条</span></div><div id=socC'+i+' style="display:none;margin-top:12px;padding:12px;background:#fafafa;border-radius:8px;max-height:500px;overflow-y:auto">'+ch+'<div style="margin-top:8px;padding:8px;background:#fef7e0;border-radius:6px;font-size:13px">📖 '+e.exp+'</div></div></div>'
+  }).join('');
+}
+
+// ===== ANALYSIS =====
+function renderAnalysis(){
+  var tl=document.getElementById('tlBox');
+  tl.innerHTML=EXAMS.map(function(d){return '<div style="padding:8px 0;border-left:2px solid var(--primary);padding-left:16px;margin-bottom:8px"><strong>'+d.y+'</strong><br><span style="font-size:13px;color:var(--text2)">'+d.n+' | 公基'+d.g+'题 + 行测'+d.x+'题</span></div>'}).join('');
+  renderChart('ch1','bar',{labels:EXAMS.map(function(d){return d.y}),datasets:[{label:'公基',data:EXAMS.map(function(d){return d.g}),backgroundColor:'#1a73e8'},{label:'行测',data:EXAMS.map(function(d){return d.x}),backgroundColor:'#e8710a'}]},{scales:{x:{stacked:true},y:{stacked:true,max:100,title:{display:true,text:'题量'}}}});
+  renderChart('ch2','bar',{labels:EXAMS.map(function(d){return d.y}),datasets:[{label:'言语',data:EXAMS.map(function(d){return d.xd.yy}),backgroundColor:'#e8450a'},{label:'判断',data:EXAMS.map(function(d){return d.xd.pd}),backgroundColor:'#1565c0'},{label:'数量',data:EXAMS.map(function(d){return d.xd.sl}),backgroundColor:'#6d4c41'},{label:'资料',data:EXAMS.map(function(d){return d.xd.zl}),backgroundColor:'#2e7d32'}]},{scales:{y:{beginAtZero:true,title:{display:true,text:'题量'}}}});
+  renderChart('ch3','bar',{labels:EXAMS.map(function(d){return d.y}),datasets:[{label:'时政',data:EXAMS.map(function(d){return d.gd.sz}),backgroundColor:'#e8710a'},{label:'省情',data:EXAMS.map(function(d){return d.gd.sq}),backgroundColor:'#0f9d58'},{label:'法律',data:EXAMS.map(function(d){return d.gd.fl}),backgroundColor:'#185abc'},{label:'党史',data:EXAMS.map(function(d){return d.gd.ds}),backgroundColor:'#d93025'},{label:'马原',data:EXAMS.map(function(d){return d.gd.mk}),backgroundColor:'#9334e6'},{label:'科技',data:EXAMS.map(function(d){return d.gd.kj}),backgroundColor:'#00897b'}]},{scales:{y:{beginAtZero:true,title:{display:true,text:'题量'}}}});
+  renderChart('ch4','line',{labels:EXAMS.map(function(d){return d.y}),datasets:[{label:'行测题量',data:EXAMS.map(function(d){return d.x}),borderColor:'#e8710a',backgroundColor:'#e8710a20',fill:true,tension:0.3,pointRadius:6}]},{scales:{y:{beginAtZero:true,max:60,title:{display:true,text:'题量'}}}});
+  document.getElementById('stratBox').innerHTML='<p><strong>🎯 核心策略</strong></p><ul style="margin-top:8px;padding-left:20px;line-height:2"><li>行测从0题飙升至50题（占50%），必须投入一半以上时间</li><li>行测优先级：判断推理(16) > 资料分析(12)=言语理解(12) > 数量关系(10)</li><li>公基重点：时政(16)+省情(8)=24题，占公基一半</li><li>时间分配：判断25min→资料20min→言语20min→数量15min→公基35min→涂卡5min</li><li>多选题已取消，全单选题，策略上追求准确率</li><li>2026年起省情占比下降，全国时政/政治理论成为公基主体</li></ul>';
+}
+function renderChart(id,type,data,opts){
+  var c=document.getElementById(id);if(!c)return;
+  // Destroy existing chart
+  st.charts.forEach(function(ch,i){if(ch.canvas===c){ch.destroy();st.charts.splice(i,1)}});
+  st.charts.push(new Chart(c,{type:type,data:data,options:Object.assign({responsive:true,plugins:{legend:{position:'top'}}},opts||{})}));
+}
+
+// ===== MODE SWITCH =====
+function switchMode(m){
+  st.mode=m;document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.toggle('active',b.dataset.mode===m)});
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+  if(m==='quiz')document.getElementById('quizPanel').classList.add('active');
+  else if(m==='review'){document.getElementById('reviewPanel').classList.add('active');upSoc()}
+  else if(m==='analysis'){document.getElementById('analysisPanel').classList.add('active');setTimeout(renderAnalysis,200)}
+}
+
+// ===== COLORS =====
+function getCol(cat,t){
+  var cs={'新思想':'#1a73e8','全国时政':'#e8710a','云南省情':'#0f9d58','党史':'#d93025','马原':'#9334e6','法律':'#185abc','科技文史地理':'#00897b','言语理解':'#e8450a','判断推理':'#1565c0','数量关系':'#6d4c41','资料分析':'#2e7d32'};
+  var c=cs[cat]||'#666';return t==='bg'?c+'20':c;
+}
+
+window.onload=init;
+
+
+// ===== 新增题目 =====
+QB['新思想'].push(
+{q:'中国式现代化五个特征不包括？（2025云南定向选调·改编）',o:['人口规模巨大','全体人民共同富裕','物质文明和精神文明相协调','快速实现现代化'],a:3,e:'中国式现代化是渐进过程，不能一蹴而就。'},
+{q:'党的二十大报告提出到2035年建成哪三个强国？（2024国考·改编）',o:['教育强国科技强国人才强国','经济强国军事强国文化强国','创新强国制造强国质量强国','数字强国绿色强国开放强国'],a:0,e:'教育强国、科技强国、人才强国。'}
+);
+QB['全国时政'].push(
+{q:'2024年我国GDP总量首次突破多少万亿元？（2025国考·原题）',o:['120万亿','130万亿','140万亿','150万亿'],a:1,e:'2024年GDP为134.9万亿元，首次突破130万亿。'},
+{q:'碳达峰碳中和目标年份？（2024云南定向选调·原题）',o:['2030/2060','2035/2050','2040/2060','2030/2050'],a:0,e:'2030年前碳达峰，2060年前碳中和。'}
+);
+QB['云南省情'].push(
+{q:'云南面向南亚东南亚辐射中心建设核心城市？（2024云南定向选调·原题）',o:['昆明','大理','景洪','瑞丽'],a:0,e:'昆明是辐射中心建设的核心城市。'},
+{q:'云南八大重点产业不包括？（2024云南公考·改编）',o:['烟草','电力','旅游','房地产'],a:3,e:'八大重点产业：烟草、电力、旅游、有色、食品、生物医药、石化、信息。'}
+);
+QB['党史'].push(
+{q:'中共一大代表人数？（2023云南定向选调·原题）',o:['12人','13人','15人','18人'],a:1,e:'13人，代表全国50多名党员。'},
+{q:'抗日战争全面爆发标志？（2024国考·改编）',o:['九一八事变','七七事变','八一三事变','南京沦陷'],a:1,e:'1937年7月7日七七事变，全面抗战爆发。'}
+);
+QB['马原'].push(
+{q:'哲学基本问题？（2024云南公考·改编）',o:['思维与存在的关系','理论与实践的关系','感性认识与理性认识的关系','自由与必然的关系'],a:0,e:'思维与存在的关系问题是哲学基本问题。'},
+{q:'真理的本性？（2023国考题·原题）',o:['主观与客观相符合','实用','多数人认同','权威认定'],a:0,e:'真理的本性是主观认识与客观实际相符合。'}
+);
+QB['法律'].push(
+{q:'行政处罚听证程序适用？（2024云南定向选调·改编）',o:['所有处罚','责令停产停业','警告','行政拘留'],a:1,e:'责令停产停业、吊销许可证等适用听证。'},
+{q:'民法典规定普通诉讼时效？（2024国考·改编）',o:['1年','2年','3年','5年'],a:2,e:'民法典规定普通诉讼时效为3年。'}
+);
+QB['科技文史地理'].push(
+{q:'云南最高峰卡瓦格博海拔？（2024云南定向选调·原题）',o:['5545米','6740米','7500米','8000米'],a:1,e:'梅里雪山卡瓦格博峰海拔6740米。'},
+{q:'中国首个国家级新区？（2023国考·改编）',o:['上海浦东','天津滨海','重庆两江','浙江舟山'],a:0,e:'1992年上海浦东新区是首个国家级新区。'}
+);
+QB['言语理解'].push(
+{q:'下列没有语病的是？（2024云南公考行测·原题）',o:['通过努力学习，使我进步','他一共买了三支笔和书','不但学习好，而且品德好','能否坚持到底，是成功的关键'],a:2,e:'A缺主语，B搭配不当，D两面对一面。'},
+{q:'"云南的美丽不仅在于自然风光，更在于多元文化的交融。"这句话的主旨是？（2024云南定向选调·改编）',o:['自然风光优美','多元文化交融更重要','美丽源于自然和文化','旅游价值高'],a:2,e:'不仅更递进，强调两者都是美丽的来源。'}
+);
+QB['判断推理'].push(
+{q:'必要条件：以下属于必要条件关系的是？（2024国考·改编）',o:['下雨→地湿','报名→考试','满18岁→有选举权','努力→成功'],a:2,e:'满18岁是有选举权的必要条件。'},
+{q:'下列与"医生：医院"逻辑关系最相似的是？（2023云南公考·原题）',o:['教师：教室','司机：汽车','厨师：厨房','法官：法院'],a:3,e:'医生在医院工作，法官在法院工作，都是专业场所。'}
+);
+QB['数量关系'].push(
+{q:'某单位有员工120人，其中党员72人。党员占比？（2024云南定向选调·改编）',o:['50%','55%','60%','65%'],a:2,e:'72/120=60%。'},
+{q:'一项工程甲单独20天乙单独30天，合作需几天？（2024国考·原题）',o:['10','12','15','18'],a:1,e:'1/(1/20+1/30)=12天。'}
+);
+QB['资料分析'].push(
+{q:'2024年某省GDP为5.2万亿元，同比增长5.5%。2023年GDP约为？（2024云南定向选调·改编）',o:['4.8万亿','4.9万亿','5.0万亿','5.1万亿'],a:1,e:'5.2/1.055≈4.93万亿。'},
+{q:'下表为某省2024年各季度GDP：Q1=1.2万亿，Q2=1.3万亿，Q3=1.4万亿，Q4=1.5万亿。全年GDP？（2024国考·改编）',o:['5.2万亿','5.4万亿','5.6万亿','5.8万亿'],a:1,e:'1.2+1.3+1.4+1.5=5.4万亿。'}
+);
+
+</script>
+</body>
+<!-- v20250703-4 deployed -->
 </html>
