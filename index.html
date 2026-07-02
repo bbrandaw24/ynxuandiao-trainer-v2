@@ -309,7 +309,21 @@ function load(){
     if(d.socs)st.socs=d.socs;else if(d.sc)st.socs=d.sc;
     if(d.dones)st.dones=d.dones;else if(d.dn)st.dones=d.dn;
     // Fix garbled keys
-    (function(fixK){for(var k in st.history){var nk=fixK(k);if(nk!==k){st.history[nk]=st.history[k];delete st.history[k]}}for(var k in st.dones){var nk=fixK(k);if(nk!==k){st.dones[nk]=st.dones[k];delete st.dones[k]}}})(function(k){try{var dk=decodeURIComponent(escape(k));return dk!==k?dk:k}catch(e){return k}});
+    (function(fixK){for(var k in st.history){var nk=fixK(k);if(nk!=k){st.history[nk]=st.history[k];delete st.history[k]}}for(var k in st.dones){var nk=fixK(k);if(nk!=k){st.dones[nk]=st.dones[k];delete st.dones[k]}}})(function(k){try{var dk=decodeURIComponent(escape(k));return dk!=k?dk:k}catch(e){return k}});
+    // Normalize history keys: map short keys to full keys
+    for(var cat in st.history){
+      var h=st.history[cat];
+      if(h&&typeof h==='object'){
+        if(h.t!==undefined){h.total=h.t;delete h.t;}
+        if(h.r!==undefined){h.correct=h.r;delete h.r;}
+        if(h.w!==undefined){h.wrong=h.w;delete h.w;}
+        if(h.es!==undefined){h.explanations=h.es;delete h.es;}
+        if(h.total===undefined)h.total=0;
+        if(h.correct===undefined)h.correct=0;
+        if(h.wrong===undefined)h.wrong=0;
+        if(h.errors===undefined)h.errors=[];
+      }
+    }
     return true;
   }catch(e){return false}
 }
