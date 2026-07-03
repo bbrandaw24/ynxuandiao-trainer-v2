@@ -99,6 +99,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans S
 <button class="btn btn-sm btn-pri" onclick=exportGit(this)>📤 同步GitHub</button>
 <button class="btn btn-sm btn-danger" onclick=resetProgress() style=margin-left:8px>🔄 重置做题</button>
 <button class="btn btn-sm btn-danger" onclick=resetAll()>重置统计</button>
+<input type="file" id="pf" accept=".json" style="display:none" onchange="impP(this.files[0])">
+<button class="btn btn-sm btn-sec" onclick="document.getElementById('pf').click()" style="margin-left:8px">Import</button>
+<button class="btn btn-sm btn-sec" onclick="expP()" style="margin-left:4px">Export</button>
 </div>
 <div class=expl-box id=explBox><strong>解析：</strong><span id=explText></span></div>
 </div>
@@ -425,6 +428,7 @@ function init(){
   else cats.forEach(function(c){if(!st.history[c])st.history[c]={total:0,correct:0,wrong:0,errors:[]}});
   loadQ();upStats();
   setTimeout(renderAnalysis,500);
+  loadP();
 }
 
 // ===== QUIZ =====
@@ -589,6 +593,15 @@ function autoSync(){
     .catch(function(){})
   },3000)
 }
+
+
+// == PROGRESS ==
+function expP(){var d={v:1,t:new Date().toISOString(),h:st.history,w:st.wrongs,s:st.socs,d:st.dones};var b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download='progress_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u)}
+function impP(file){if(!file)return;var r=new FileReader();r.onload=function(e){try{var d=JSON.parse(e.target.result);if(d.h)mH(d.h);if(d.w)mW(d.w);if(d.d)mD(d.d);if(d.s)st.socs=d.s;save();loadQ();upStats();upErrs();upSoc();alert('OK')}catch(err){alert('Fail: '+err.message)}};r.readAsText(file)}
+function mH(h){for(var cat in h){if(!st.history[cat])st.history[cat]={total:0,correct:0,wrong:0,errors:[]};st.history[cat].total+=h[cat].total||0;st.history[cat].correct+=h[cat].correct||0;st.history[cat].wrong+=h[cat].wrong||0;if(h[cat].errors)st.history[cat].errors=st.history[cat].errors.concat(h[cat].errors)}}
+function mW(ws){var s=new Set(st.wrongs.map(function(e){return e.cat+'|'+e.q}));ws.forEach(function(e){if(!s.has(e.cat+'|'+e.q))st.wrongs.push(e)})}
+function mD(d){for(var k in d)st.dones[k]=true}
+function loadP(){fetch('https://bbrandaw24.github.io/ynxuandiao-trainer-v2/data/quiz_data.json?t='+Date.now()).then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;if(d.history)mH(d.history);if(d.wrongs)mW(d.wrongs);if(d.dones)mD(d.dones);if(d.socs)st.socs=d.socs;save();loadQ();upStats();upErrs();upSoc();console.log('Progress loaded')}).catch(function(){})}
 
 // ===== REVIEW =====
 function upSoc(){
