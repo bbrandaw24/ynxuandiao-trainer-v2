@@ -495,18 +495,39 @@ function upStats(){
 }
 
 function upErrs(){
-  var all=st.wrongs;var act=all.filter(function(e){return !e._dis});var dis=all.filter(function(e){return e._dis});
-  document.getElementById('errLabel').textContent='('+all.length+'，待消'+act.length+')';
+  var all=st.wrongs;
+  var act=all.filter(function(e){return !e._dis});
+  var dis=all.filter(function(e){return e._dis});
+  document.getElementById('errLabel').textContent='('+all.length+',待消'+act.length+')';
   if(!all.length){document.getElementById('errList').innerHTML='<p style="color:var(--text2);text-align:center;padding:20px 0">暂无错题</p>';upSoc();return}
   var h='';
   act.forEach(function(e,i){
-    var ri=all.indexOf(e);var p=e.dc?'<span style="font-size:12px;color:var(--primary);margin-left:8px;">'+e.dc+'/5</span>':'';
-    h+='<div class=error-item onclick="togErr('+ri+')'><div style="display:flex;justify-content:space-between;align-items:center"><div class=err-q>['+e.cat+'] '+(e.q.length>40?e.q.slice(0,40)+'...':e.q)+p+'</div><button class="btn btn-sm btn-danger" onclick="delErr('+ri+');event.stopPropagation()" style="margin-left:8px;padding:2px 8px;font-size:11px">✕</button></div><div class=err-detail>你的答案：<span class=wrong-ans>'+(e.unk?'不会':L[e.sel])+'</span> | 正确答案：<span class=right-ans>'+L[e.cor]+'</span></div><div id=erD'+ri+' style="display:none;margin-top:8px"><p style="font-size:13px;color:var(--text2);padding:8px;background:#f8f9fa;border-radius:6px">'+e.exp+'</p><div id=derB'+ri+'><button class="btn btn-sm btn-pri" onclick="genDer('+ri+');event.stopPropagation()">生成衍生题</button><div id=derC'+ri+'></div></div></div></div>'
+    var ri=all.indexOf(e);
+    var p=e.dc?'<span style="font-size:12px;color:var(--primary);margin-left:8px">'+e.dc+'/5</span>':'';
+    var qtxt=e.q.length>40?e.q.slice(0,40)+'...':e.q;
+    var ansTxt=e.unk?'不会':L[e.sel];
+    var corTxt=L[e.cor];
+    h+='<div class=error-item onclick="togErr('+ri+')">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    h+='<div class=err-q>['+e.cat+'] '+qtxt+p+'</div>';
+    h+='<button class="btn btn-sm btn-danger" onclick="delErr('+ri+');event.stopPropagation()" style="margin-left:8px;padding:2px 8px;font-size:11px">✕</button>';
+    h+='</div>';
+    h+='<div class=err-detail">你的答案：<span class=wrong-ans>'+ansTxt+'</span> | 正确答案：<span class=right-ans>'+corTxt+'</span></div>';
+    h+='<div id=erD'+ri+' style="display:none;margin-top:8px">';
+    h+='<p style="font-size:13px;color:var(--text2);padding:8px;background:#f8f9fa;border-radius:6px">'+e.exp+'</p>';
+    h+='<div id=derB'+ri+'><button class="btn btn-sm btn-pri" onclick="genDer('+ri+');event.stopPropagation()">生成衍生题</button><div id=derC'+ri+'></div></div>';
+    h+='</div></div>';
   });
-  if(dis.length)h+='<details style=margin-top:12px><summary style="font-size:13px;color:var(--text2);cursor:pointer">已消错题('+dis.length+'道)</summary>'+dis.map(function(e){return '<div style="padding:8px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)">['+e.cat+'] '+(e.q.length>50?e.q.slice(0,50)+'...':e.q)+' <span style="color:var(--success)">✓ 已消</span></div>'}).join('')+'</details>';
+  if(dis.length){
+    h+='<details style=margin-top:12px><summary style="font-size:13px;color:var(--text2);cursor:pointer">已消错题('+dis.length+'道)</summary>';
+    dis.forEach(function(e){
+      var dq=e.q.length>50?e.q.slice(0,50)+'...':e.q;
+      h+='<div style="padding:8px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)">['+e.cat+'] '+dq+' <span style="color:var(--success)">✓ 已消</span></div>';
+    });
+    h+='</details>';
+  }
   document.getElementById('errList').innerHTML=h;upSoc();
 }
-
 function delErr(i){if(!confirm('删除这道错题？'))return;st.wrongs.splice(i,1);save();upErrs()}
 function togErr(i){var e=document.getElementById('erD'+i);e.style.display=e.style.display==='none'?'block':'none'}
 
