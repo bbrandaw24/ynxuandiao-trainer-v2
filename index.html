@@ -422,13 +422,16 @@ function load(){
 
 // ===== INIT =====
 function init(){
+  try{
   var cats=Object.keys(QB);
+  if(!cats.length){document.getElementById('qCat').textContent='无题目数据';return}
   document.getElementById('categoryTabs').innerHTML=cats.map(function(c){return '<button class="nav-tab'+(c===st.cat?' active':'')+'" onclick="swCat(\''+c+'\')">'+c+'</button>'}).join('');
   if(!load())cats.forEach(function(c){st.history[c]={total:0,correct:0,wrong:0,errors:[]}});
   else cats.forEach(function(c){if(!st.history[c])st.history[c]={total:0,correct:0,wrong:0,errors:[]}});
   loadQ();upStats();
-  setTimeout(renderAnalysis,500);
+  setTimeout(function(){try{renderAnalysis()}catch(e){console.error('renderAnalysis err:',e)}},800);
   loadP();
+  }catch(e){alert('初始化错误：'+e.message);console.error(e)}
 }
 
 // ===== QUIZ =====
